@@ -1,22 +1,18 @@
-import express, { Application, Request, Response } from 'express';
+import app from './app';
+import 'dotenv/config';
+import { connectDatabase } from './config/db.config';
+import ENV_CONFIG from './config/env.config';
+import { verifySMTP } from './config/nodemailer.config';
 
 
-const PORT = 8000;
-const app: Application = express();
+const PORT = ENV_CONFIG.PORT;
+const DB_URI = ENV_CONFIG.DB_URI!!;
 
-app.use(express.json());
+// database connection
+connectDatabase(DB_URI);
 
-//health route
-app.get('/', (req: Request, res: Response) => {
-    res.status(200).json({ 
-        message: "server is up and running",
-        status: "success",
-        success: true,
-        data: null,
-    });
-});
-
-app.listen(PORT, () =>{
-    console.log(`Server is running at ${PORT}`);
+app.listen(PORT, async () =>{
+    await verifySMTP();
+    console.log(`Server is running at http://localhost:${PORT}`);
     console.log("Press ctrl+c for close the server");
 });
